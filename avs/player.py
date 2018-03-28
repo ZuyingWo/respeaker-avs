@@ -4,6 +4,7 @@
 
 import time
 import gi
+import logging
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
 
@@ -21,9 +22,25 @@ class Player(object):
         # self.bus.connect('sync-message::eos', self.on_eos)
 
     def play(self, uri):
+        logging.info('uri:{}'.format(uri))
+
         self.player.set_state(Gst.State.NULL)
         self.player.set_property('uri', uri)
         self.player.set_state(Gst.State.PLAYING)
+
+        #Todo: for bluetooth speaker
+        try:
+            if uri.startswith("file://"):
+                uri = uri[7:]
+            import pygame
+            pygame.mixer.init()
+            pygame.mixer.music.load(uri)
+            pygame.mixer.music.play()
+            #
+            # while pygame.mixer.music.get_busy():
+            #     continue
+        except:
+            pass
 
     def stop(self):
         self.player.set_state(Gst.State.NULL)

@@ -28,7 +28,7 @@ def get_audio_url(audio_url, timeout=3000):
     if audio_url.startswith('cid:'):
         filename = base64.urlsafe_b64encode(audio_url[4:])
         filename = hashlib.md5(filename).hexdigest()
-        mp3_file = os.path.join(tempfile.gettempdir(), filename + '.mp3')
+        mp3_file = os.path.join("." + tempfile.gettempdir(), filename + '.mp3')
         if os.path.isfile(mp3_file):
             return 'file://{}'.format(mp3_file)
         else:

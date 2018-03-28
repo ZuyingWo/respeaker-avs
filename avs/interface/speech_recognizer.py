@@ -22,7 +22,7 @@ class SpeechRecognizer(object):
 
     def __init__(self, alexa):
         self.alexa = alexa
-        self.profile = 'FAR_FIELD'
+        self.profile = 'NEAR_FIELD'
 
         self.dialog_request_id = ''
 
@@ -95,7 +95,7 @@ class SpeechRecognizer(object):
             time_elapsed = 0
             while self.listening and time_elapsed <= timeout:
                 try:
-                    chunk = self.audio_queue.get(timeout=1.0)
+                    chunk = self.audio_queue.get(timeout=10.0)
                 except queue.Empty:
                     break
 

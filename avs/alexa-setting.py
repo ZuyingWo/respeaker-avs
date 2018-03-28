@@ -30,24 +30,18 @@ from avs.interface.speech_recognizer import SpeechRecognizer
 from avs.interface.speech_synthesizer import SpeechSynthesizer
 from avs.interface.system import System
 from avs.interface.settings import Settings
-from avs.interface.template_runtime import TemplateRuntime
 import avs.config
-from threading import Timer
 from pixel_ring import pixel_ring
 
 logger = logging.getLogger(__name__)
 
 
 class AlexaStateListener(object):
-    can_listen = False
-    is_thinking = False
-
     def __init__(self):
         pass
 
     def on_ready(self):
         logger.info('on_ready')
-        Timer(2, self.check_enable_listen, ()).start()
 
     def on_disconnected(self):
         logger.info('on_disconnected')
@@ -55,18 +49,10 @@ class AlexaStateListener(object):
     def on_listening(self):
         logger.info('on_listening')
         pixel_ring.listen()
-        self.can_listen = False
 
     def on_thinking(self):
         logger.info('on_thinking')
         pixel_ring.think()
-        self.is_thinking = True
-
-        try:
-            from threading import Timer
-            Timer(1, self.check_enable_listen, ()).start()
-        except:
-            pass
 
     def on_speaking(self):
         logger.info('on_speaking')
@@ -75,34 +61,6 @@ class AlexaStateListener(object):
     def on_finished(self):
         logger.info('on_finished')
         pixel_ring.off()
-        self.is_thinking = False
-        #
-        # try:
-        #     from threading import Timer
-        #     Timer(1, self.check_enable_listen, ()).start()
-        # except Exception as ex:
-        #     logging.info('{}'.format(ex))
-        # finally:
-        #     pass
-
-        return
-
-    def check_enable_listen(self):
-        try:
-            import pygame
-            if self.is_thinking:
-                Timer(5, self.check_enable_listen, ()).start()
-            # elif pygame.mixer.get_busy():
-            #     Timer(1, self.check_enable_listen, ()).start()
-            else:
-                self.can_listen = True
-                logging.info("check_enable_listen:{}".format(self.can_listen))
-        except Exception as ex:
-            logging.info('{}'.format(ex))
-        finally:
-            pass
-
-        return True
 
 
 class Alexa(object):
@@ -117,7 +75,6 @@ class Alexa(object):
         self.Alerts = Alerts(self)
         self.System = System(self)
         self.Settings = Settings(self)
-        self.TemplateRuntime = TemplateRuntime(self)
 
         self.state_listener = AlexaStateListener()
         self.listener_canceler = threading.Event()
@@ -207,7 +164,6 @@ class Alexa(object):
         self.event_queue.queue.clear()
 
         self.System.SynchronizeState()
-        # self.Settings.SettingsUpdated('ja-JP')
 
         while not self.done:
             # logger.info("Waiting for event to send to AVS")
@@ -291,11 +247,7 @@ class Alexa(object):
             if resp.status == 200:
                 self._read_response(resp)
             elif resp.status == 204:
-                # self.listener_canceler.set()
-                if self.state_listener.is_thinking:
-                    self.listener_canceler.clear()
-                else:
-                    pass
+                pass
             else:
                 logger.warning(resp.headers)
                 logger.warning(resp.read())
@@ -543,32 +495,20 @@ def main():
     alexa.start()   
     audio.start()
 
-    # try:
-    #     input('press ENTER to talk\n')
-    #     pass
-    # except SyntaxError:
-    #     pass
-    # except NameError:
-    #     pass
-
     while True:
         try:
-            # try:
-            #     input('press ENTER to talk\n')
-            #     pass
-            # except SyntaxError:
-            #     pass
-            # except NameError:
-            #     pass
+            try:
+                input('press ENTER to talk\n')
+            except SyntaxError:
+                pass
+            except NameError:
+                pass
 
-            if alexa.state_listener.can_listen:
-                alexa.listen(
-                    # timeout=10000/2
-                )
+            alexa.listen()
         except KeyboardInterrupt:
             break
-        finally:
-            time.sleep(7)
+
+    alexa.Settings.SettingsUpdated('ja-JP')
 
     alexa.stop()
     audio.stop()

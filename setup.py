@@ -13,6 +13,7 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'click',
+    'setuptools',
     'hyper',
     'tornado',
     'requests',
@@ -32,9 +33,9 @@ setup(
     version='0.1.1',
     description="Python implementation of Alexa Voice Service App",
     long_description=readme + '\n\n' + history,
-    author="Yihui Xiong",
-    author_email='yihui.xiong@hotmail.com',
-    url='https://github.com/respeaker/avs',
+    author="Zuying Wo",
+    author_email='zuying.wo@gmail.com',
+    url='https://github.com/ZuyingWo/respeaker-avs',
     packages=find_packages(include=['avs']),
     include_package_data=True,
     install_requires=requirements,
